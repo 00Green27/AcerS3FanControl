@@ -45,6 +45,7 @@ namespace AcerFanControl {
 													new MenuItem("-"),
 													MenuItem_Exit
 			};
+
 		}
 
 		private void HandleCreateConfigFileEvent(Object sender, EventArgs ev) => SaveOrLoadConfigFile(false);
@@ -127,6 +128,10 @@ There seems to be a lot of sketchy sites offering the download. The file should 
 		private FanProfile activeProfile = null;
 		private StringBuilder _sbIcon = new StringBuilder(32);
 
+		private void HandleMouseOverIcon(Object sender, EventArgs ev) {
+
+		}
+
 		public void Update(FanProfile profile, byte temp, byte speed) {
 			if(activeProfile != profile) {
 				for(int i = 0, len = contextMenu.MenuItems.Count; i<len; i++) {
@@ -145,29 +150,17 @@ There seems to be a lot of sketchy sites offering the download. The file should 
 			}
 		}
 
-		[System.Runtime.InteropServices.DllImport("user32.dll", CharSet = CharSet.Auto)]
-		extern static bool DestroyIcon(IntPtr handle);
 
+		[System.Runtime.InteropServices.DllImport("user32.dll", CharSet = CharSet.Auto)] extern static bool DestroyIcon(IntPtr handle);
 
 		private Bitmap _trayIcon16 = Properties.Resources.icon16;
 		private Bitmap _trayFont16 = Properties.Resources.font16;
 		private Brush _whiteBrush = new SolidBrush(Color.FromArgb(255, 255, 255));
-		private Dictionary<UInt16, Icon> _iconCache = new Dictionary<UInt16, Icon>(128);
 
 		private void RenderIcon(byte temp, byte fan) {
 			if(temp > 100) { temp = 100; }
 			if(fan > 100) { fan = 100; }
-			UInt16 key = (UInt16)((fan << 7) | temp);
-			Icon icon = null;
-			if(!_iconCache.TryGetValue(key, out icon)) {
-				icon = BuildIcon(temp, fan);
-				_iconCache[ key ] = icon;
-			}
-			notifyIcon.Icon = icon;
-		}
-
-		private Icon BuildIcon(byte temp, byte fan) {
-			using(Bitmap bitmap = new Bitmap(_trayIcon16))
+			using (Bitmap bitmap = new Bitmap(_trayIcon16))
 			using (Graphics graphics = Graphics.FromImage(bitmap)) {
 				if (temp <= 99) {
 					graphics.DrawImage(_trayFont16, new Rectangle(0, 0, 8, 11), new Rectangle(((temp / 10) % 10) * 8, 0, 8, 11), GraphicsUnit.Pixel);
@@ -177,10 +170,11 @@ There seems to be a lot of sketchy sites offering the download. The file should 
 					graphics.DrawImage(_trayFont16, new Rectangle(8, 0, 8, 11), new Rectangle(80, 0, 8, 11), GraphicsUnit.Pixel);
 				}
 				graphics.FillRectangle(_whiteBrush, 1, 12, fan * 14 / 100, 3);
-				return Icon.FromHandle(bitmap.GetHicon());
-			}
+				Icon prev = notifyIcon.Icon;
+				notifyIcon.Icon = Icon.FromHandle(bitmap.GetHicon());
+				if (prev != null) { DestroyIcon(prev.Handle);  }			
+			}			
 		}
-
 
 
 		internal class ProfileMenuItem : MenuItem {
