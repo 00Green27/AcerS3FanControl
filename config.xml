@@ -7,7 +7,7 @@
     <interval>1000</interval>         --Default setting if not specified in fanprofile.
     <timeout>500</timeout>            --Should be less than interval. If 3 timeouts occur over the last 10 intervals, an exception will be thrown and the app will exit.
     <spinwait>4096</spinwait>         --How many cycles the CPU should wait per communication with the fan controller.
-    <fanspeedscale>-1.95</fanspeedscale> --Divides the 8bit fan speed value to get the fanspeed percent. If negative, equation is (255 - value/fanspeedscale)
+    <fanspeedscale>-2</fanspeedscale> --Divides the 8bit fan speed value to get the fanspeed percent. If negative, equation is (255 - value/fanspeedscale)
     <cputempscale>1</cputempscale>    --Divides the 8bit temp value to get the temperature. If negative, equation is (255 - value/cputempscale). Use this to offset reported temperature if it is slightly wrong.
   </general>
 
